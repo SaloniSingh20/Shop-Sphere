@@ -66,7 +66,7 @@ npm run dev
 
 Frontend .env:
 
-- `VITE_API_BASE_URL=http://localhost:5000/api`
+- `VITE_API_BASE_URL=/api`
 
 ### Frontend Features
 
@@ -112,9 +112,13 @@ docker compose up --build
 
 Services:
 
-- Frontend: `http://localhost:8080`
-- Backend: `http://localhost:5000`
+- App (frontend + proxied backend API): `http://localhost:8080`
 - MongoDB: `mongodb://localhost:27017`
+
+### Single-Link Access
+
+- Development: run backend and frontend, then open `http://localhost:5173` (or the Vite port shown in terminal). Frontend proxies `/api` to backend automatically.
+- Docker: open `http://localhost:8080`. Nginx serves frontend and proxies `/api` to backend.
 
 ### Cloud Deployment
 
