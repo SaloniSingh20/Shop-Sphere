@@ -1,16 +1,32 @@
 const { compactText } = require("./parsers");
+const crypto = require("crypto");
+
+const categoryMap = {
+  myntra: "Fashion",
+  nykaa: "Beauty",
+  amazon: "Electronics",
+  flipkart: "Electronics",
+};
 
 function normalizeProduct(item = {}) {
   if (!item.title || !item.price || !item.product_url) {
     return null;
   }
 
+  const platform = compactText(item.platform || "Unknown");
+  const key = `${platform}|${item.product_url}`;
+  const id = crypto.createHash("sha1").update(key).digest("hex").slice(0, 16);
+  const lowerPlatform = platform.toLowerCase();
+
   return {
+    id,
     title: compactText(item.title),
+    description: compactText(item.description || ""),
     price: Number(item.price),
     rating: item.rating ? Number(item.rating) : null,
     image: item.image || null,
-    platform: item.platform,
+    platform,
+    category: categoryMap[lowerPlatform] || "General",
     product_url: item.product_url,
   };
 }
@@ -29,4 +45,5 @@ function dedupeProducts(products = []) {
 module.exports = {
   normalizeProduct,
   dedupeProducts,
+  categoryMap,
 };

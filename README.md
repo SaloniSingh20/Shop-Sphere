@@ -1,6 +1,6 @@
-# ShopSpear
+# Shop-Sphere
 
-ShopSpear is a production-ready e-commerce aggregator that fetches real-time products from Amazon, Flipkart, Nykaa, and Myntra, normalizes results, compares price/rating, and provides auth + wishlist + historical tracking.
+Shop-Sphere is a production-ready e-commerce aggregator that fetches real-time products from Amazon, Flipkart, Nykaa, and Myntra, normalizes results, compares price/rating, and provides auth + wishlist + historical tracking.
 
 ## Tech Stack
 

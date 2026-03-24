@@ -7,6 +7,8 @@ const env = require("./config/env");
 const authRoutes = require("./routes/authRoutes");
 const searchRoutes = require("./routes/searchRoutes");
 const wishlistRoutes = require("./routes/wishlistRoutes");
+const activityRoutes = require("./routes/activityRoutes");
+const catalogRoutes = require("./routes/catalogRoutes");
 const { notFound, errorHandler } = require("./middleware/errorHandler");
 
 const app = express();
@@ -29,12 +31,14 @@ const searchLimiter = rateLimit({
 });
 
 app.get("/api/health", (_req, res) => {
-  res.json({ status: "ok", service: "ShopSpear API" });
+  res.json({ status: "ok", service: "Shop-Sphere API" });
 });
 
 app.use("/api", searchLimiter, searchRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/wishlist", wishlistRoutes);
+app.use("/api/activity", activityRoutes);
+app.use("/api/catalog", catalogRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

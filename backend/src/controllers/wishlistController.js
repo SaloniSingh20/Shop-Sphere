@@ -11,7 +11,7 @@ async function getWishlist(req, res, next) {
 
 async function addWishlistItem(req, res, next) {
   try {
-    const { title, price, rating, image, platform, product_url } = req.body;
+    const { title, description, price, rating, image, platform, product_url } = req.body;
     if (!product_url || !title || !price || !platform) {
       return res.status(400).json({ message: "Missing required product fields" });
     }
@@ -23,7 +23,7 @@ async function addWishlistItem(req, res, next) {
 
     const exists = user.wishlist.some((item) => item.product_url === product_url);
     if (!exists) {
-      user.wishlist.push({ title, price, rating, image, platform, product_url });
+      user.wishlist.push({ title, description, price, rating, image, platform, product_url });
       await user.save();
     }
 

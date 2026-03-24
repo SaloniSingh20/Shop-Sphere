@@ -15,7 +15,7 @@ services:
     environment:
       NODE_ENV: production
       PORT: 5000
-      MONGO_URI: mongodb://mongodb:27017/shopspear
+      MONGO_URI: mongodb://mongodb:27017/shopsphere
       JWT_SECRET: replace-in-prod
       CORS_ORIGIN: http://localhost:8080
 
@@ -24,8 +24,11 @@ services:
       context: ./frontend
     depends_on:
       - backend
+    environment:
+      API_PROXY_TARGET: http://backend:5000
+      NEXT_PUBLIC_API_BASE_URL: /api
     ports:
-      - "8080:80"
+      - "8080:3000"
 
 volumes:
   mongo_data:

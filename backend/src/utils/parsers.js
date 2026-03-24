@@ -1,6 +1,15 @@
 function parsePrice(value) {
   if (!value) return null;
-  const cleaned = String(value).replace(/[^\d.,]/g, "").replace(/,/g, "");
+  const raw = String(value).replace(/[^\d.,]/g, "").trim();
+  if (!raw) return null;
+
+  let cleaned = raw.replace(/,/g, "");
+
+  // Handle price formats where dot is used as thousand separator (e.g. 0.899 -> 899, 12.999 -> 12999).
+  if (/^\d+\.\d{3}$/.test(cleaned)) {
+    cleaned = cleaned.replace(".", "");
+  }
+
   const parsed = Number.parseFloat(cleaned);
   return Number.isFinite(parsed) ? parsed : null;
 }

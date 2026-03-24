@@ -4,11 +4,12 @@ const {
 	getRecommendations,
 	getPriceDrops,
 } = require("../controllers/searchController");
+const { optionalAuth } = require("../middleware/auth");
 
 const router = express.Router();
 
-router.get("/search", searchProducts);
-router.get("/recommendations", getRecommendations);
-router.get("/price-drops", getPriceDrops);
+router.get("/search", optionalAuth, searchProducts);
+router.get("/recommendations", optionalAuth, getRecommendations);
+router.get("/price-drops", optionalAuth, getPriceDrops);
 
 module.exports = router;

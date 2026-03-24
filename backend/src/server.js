@@ -7,7 +7,7 @@ async function startServer() {
     await connectDatabase();
     app.listen(env.port, () => {
       // eslint-disable-next-line no-console
-      console.log(`ShopSpear API listening on http://localhost:${env.port}`);
+      console.log(`Shop-Sphere API listening on http://localhost:${env.port}`);
     });
   } catch (error) {
     // eslint-disable-next-line no-console

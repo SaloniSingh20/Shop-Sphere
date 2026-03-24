@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const wishlistSchema = new mongoose.Schema(
   {
     title: String,
+    description: String,
     price: Number,
     rating: Number,
     image: String,
@@ -12,6 +13,41 @@ const wishlistSchema = new mongoose.Schema(
       required: true,
     },
     addedAt: {
+      type: Date,
+      default: Date.now,
+    },
+  },
+  { _id: false }
+);
+
+const recentSearchSchema = new mongoose.Schema(
+  {
+    query: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    searchedAt: {
+      type: Date,
+      default: Date.now,
+    },
+  },
+  { _id: false }
+);
+
+const recentlyViewedSchema = new mongoose.Schema(
+  {
+    title: String,
+    description: String,
+    price: Number,
+    rating: Number,
+    image: String,
+    platform: String,
+    product_url: {
+      type: String,
+      required: true,
+    },
+    viewedAt: {
       type: Date,
       default: Date.now,
     },
@@ -39,6 +75,14 @@ const userSchema = new mongoose.Schema(
     },
     wishlist: {
       type: [wishlistSchema],
+      default: [],
+    },
+    recentSearches: {
+      type: [recentSearchSchema],
+      default: [],
+    },
+    recentlyViewed: {
+      type: [recentlyViewedSchema],
       default: [],
     },
   },

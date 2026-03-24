@@ -1,40 +1,45 @@
-function scoreProducts(products) {
-  if (!products.length) return [];
+function rankProducts(products = [], query = "") {
+  const normalizedQuery = String(query || "").trim().toLowerCase();
 
-  const prices = products.map((p) => p.price).filter((n) => Number.isFinite(n));
-  const minPrice = Math.min(...prices);
-  const maxPrice = Math.max(...prices);
+  return products
+    .map((product) => {
+      let relevanceScore = 0;
+      const title = String(product.title || "").toLowerCase();
 
-  const rated = products.map((p) => p.rating || 0);
-  const maxRating = Math.max(...rated, 0);
+      if (normalizedQuery && title.includes(normalizedQuery)) {
+        relevanceScore += 50;
+      }
 
-  const bestPriceProduct = products.reduce((acc, product) => {
-    if (!acc || product.price < acc.price) return product;
-    return acc;
-  }, null);
+      relevanceScore += Number(product.rating || 0) * 10;
+      relevanceScore += 10000 / (Number(product.price || 0) + 1);
 
-  const bestRatedProduct = products.reduce((acc, product) => {
-    if (!acc || (product.rating || 0) > (acc.rating || 0)) return product;
-    return acc;
-  }, null);
-
-  const withScore = products.map((product) => {
-    const priceScore =
-      maxPrice === minPrice ? 1 : 1 - (product.price - minPrice) / (maxPrice - minPrice);
-    const ratingScore = maxRating === 0 ? 0 : (product.rating || 0) / maxRating;
-    const score = Number((priceScore * 0.35 + ratingScore * 0.65).toFixed(4));
-
-    return {
-      ...product,
-      meta: {
-        score,
-        bestPrice: bestPriceProduct?.product_url === product.product_url,
-        bestRated: bestRatedProduct?.product_url === product.product_url,
-      },
-    };
-  });
-
-  return withScore.sort((a, b) => b.meta.score - a.meta.score || a.price - b.price);
+      return {
+        ...product,
+        score: Number(relevanceScore.toFixed(4)),
+      };
+    })
+    .sort((a, b) => b.score - a.score || a.price - b.price);
 }
 
-module.exports = { scoreProducts };
+function markBestDeals(products = []) {
+  if (!products.length) return [];
+  const cheapest = Math.min(...products.map((p) => Number(p.price || 0)));
+  const topScore = products[0]?.score ?? null;
+
+  return products.map((product) => ({
+    ...product,
+    isBestPrice: Number(product.price || 0) === cheapest,
+    isTopMatch: topScore !== null && product.score === topScore,
+    meta: {
+      score: product.score,
+      bestPrice: Number(product.price || 0) === cheapest,
+      bestMatch: topScore !== null && product.score === topScore,
+    },
+  }));
+}
+
+function scoreProducts(products = [], query = "") {
+  return markBestDeals(rankProducts(products, query));
+}
+
+module.exports = { scoreProducts, rankProducts, markBestDeals };

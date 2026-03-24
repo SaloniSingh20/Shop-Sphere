@@ -1,9 +1,13 @@
 const jwt = require("jsonwebtoken");
 const env = require("../config/env");
 
-function requireAuth(req, res, next) {
+function extractBearerToken(req) {
   const authHeader = req.headers.authorization || "";
-  const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : null;
+  return authHeader.startsWith("Bearer ") ? authHeader.slice(7) : null;
+}
+
+function requireAuth(req, res, next) {
+  const token = extractBearerToken(req);
 
   if (!token) {
     return res.status(401).json({ message: "Unauthorized" });
@@ -18,4 +22,19 @@ function requireAuth(req, res, next) {
   }
 }
 
-module.exports = { requireAuth };
+function optionalAuth(req, _res, next) {
+  const token = extractBearerToken(req);
+  if (!token) {
+    return next();
+  }
+
+  try {
+    req.user = jwt.verify(token, env.jwtSecret);
+  } catch (_error) {
+    req.user = null;
+  }
+
+  return next();
+}
+
+module.exports = { requireAuth, optionalAuth };

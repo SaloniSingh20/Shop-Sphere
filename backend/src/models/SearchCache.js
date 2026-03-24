@@ -22,6 +22,6 @@ const searchCacheSchema = new mongoose.Schema(
   { versionKey: false }
 );
 
-searchCacheSchema.index({ timestamp: 1 }, { expireAfterSeconds: 3600 });
+searchCacheSchema.index({ timestamp: 1 }, { expireAfterSeconds: 600 });
 
 module.exports = mongoose.model("SearchCache", searchCacheSchema);
