@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Eye, EyeOff, Check, X } from 'lucide-react';
-import { setAuthToken, signup } from '@/lib/api';
+import { setAuthToken, signup, socialLogin } from '@/lib/api';
 
 interface PasswordStrength {
   hasMinLength: boolean;
@@ -46,9 +46,28 @@ export default function SignupPage() {
     try {
       const response = await signup(name, email, password);
       setAuthToken(response.token);
-      router.push('/wishlist');
+      router.push('/dashboard');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unable to create account');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSocialSignup = async (provider: 'google' | 'apple') => {
+    const defaultEmail = provider === 'google' ? 'you@gmail.com' : 'you@icloud.com';
+    const email = window.prompt(`Enter your ${provider} email`, defaultEmail)?.trim();
+    if (!email) return;
+
+    setError('');
+    setIsLoading(true);
+
+    try {
+      const response = await socialLogin(provider, email, email.split('@')[0]);
+      setAuthToken(response.token);
+      router.push('/dashboard');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : `Unable to sign up with ${provider}`);
     } finally {
       setIsLoading(false);
     }
@@ -222,6 +241,8 @@ export default function SignupPage() {
               type="button"
               variant="outline"
               className="w-full border-border hover:border-accent hover:text-accent"
+              onClick={() => handleSocialSignup('google')}
+              disabled={isLoading}
             >
               <span className="text-lg mr-2">🔵</span>
               Google
@@ -230,6 +251,8 @@ export default function SignupPage() {
               type="button"
               variant="outline"
               className="w-full border-border hover:border-accent hover:text-accent"
+              onClick={() => handleSocialSignup('apple')}
+              disabled={isLoading}
             >
               <span className="text-lg mr-2">🍎</span>
               Apple

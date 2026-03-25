@@ -4,6 +4,7 @@ const { normalizeProduct } = require("../utils/normalizers");
 const { parsePrice, parseRating, normalizeUrl, compactText } = require("../utils/parsers");
 const { fetchHtml, rateLimited } = require("./serviceUtils");
 const { httpClient } = require("../config/axiosClient");
+const { searchDatasetByPlatform } = require("../data/platformDatasets");
 
 const BASE_URL = "https://www.amazon.in";
 
@@ -144,6 +145,8 @@ async function searchWithScraping(query) {
 
 async function searchAmazon(query) {
   return rateLimited("amazon", async () => {
+    const datasetFallback = () => searchDatasetByPlatform("Amazon", query, 12);
+
     try {
       const apiResults = await searchWithPaapi(query);
       if (apiResults.length) return apiResults;
@@ -161,9 +164,11 @@ async function searchAmazon(query) {
       }
 
       try {
-        return await searchWithScraping(query);
+        const scraped = await searchWithScraping(query);
+        if (scraped.length) return scraped;
+        return datasetFallback();
       } catch (_scrapeError) {
-        return [];
+        return datasetFallback();
       }
     }
   });

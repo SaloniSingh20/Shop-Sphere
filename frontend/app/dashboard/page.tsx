@@ -3,11 +3,17 @@
 import { motion } from 'framer-motion';
 import { LogOut, Heart, Clock, Settings } from 'lucide-react';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ProductCard } from '@/components/shop/product-card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { addRecentlyViewed, clearAuthToken, getAuthToken, getUserActivity } from '@/lib/api';
+import {
+  addRecentlyViewed,
+  clearAuthToken,
+  fetchCatalogProducts,
+  getAuthToken,
+  getUserActivity,
+} from '@/lib/api';
 import { LiveProductCard, mapApiProducts } from '@/lib/live-products';
 
 export default function DashboardPage() {
@@ -21,6 +27,7 @@ export default function DashboardPage() {
   });
   const [wishlistItems, setWishlistItems] = useState<LiveProductCard[]>([]);
   const [recentlyViewed, setRecentlyViewed] = useState<LiveProductCard[]>([]);
+  const [recommendations, setRecommendations] = useState<LiveProductCard[]>([]);
   const [recentSearches, setRecentSearches] = useState<Array<{ query: string; searchedAt: string }>>([]);
 
   useEffect(() => {
@@ -68,6 +75,36 @@ export default function DashboardPage() {
   }, []);
 
   const savedComparisons = recentlyViewed.slice(0, 3);
+  const randomRecommendations = useMemo(() => {
+    const list = [...recommendations];
+    for (let i = list.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [list[i], list[j]] = [list[j], list[i]];
+    }
+    return list.slice(0, 4);
+  }, [recommendations]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadRecommendations() {
+      try {
+        const response = await fetchCatalogProducts({ limit: 30 });
+        if (cancelled) return;
+        setRecommendations(mapApiProducts(response.results));
+      } catch (_err) {
+        if (!cancelled) {
+          setRecommendations([]);
+        }
+      }
+    }
+
+    loadRecommendations();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   function handleLogout() {
     clearAuthToken();
@@ -323,6 +360,49 @@ export default function DashboardPage() {
             )}
           </TabsContent>
         </Tabs>
+
+        {randomRecommendations.length > 0 && (
+          <section className="mt-12">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-foreground">Recommended For You</h2>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setRecommendations((prev) => [...prev])}
+              >
+                Refresh Picks
+              </Button>
+            </div>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+            >
+              {randomRecommendations.map((product, index) => (
+                <motion.div
+                  key={`${product.id}-${index}`}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                >
+                  <ProductCard
+                    id={product.id}
+                    title={product.title}
+                    price={product.price}
+                    originalPrice={product.originalPrice}
+                    rating={product.rating}
+                    reviewCount={product.reviewCount}
+                    image={product.image}
+                    platform={product.platform}
+                    isCheapest={product.isCheapest}
+                    href={product.productUrl}
+                    onOpenProduct={() => handleOpenProduct(product)}
+                  />
+                </motion.div>
+              ))}
+            </motion.div>
+          </section>
+        )}
       </div>
     </div>
   );

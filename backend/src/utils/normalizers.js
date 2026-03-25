@@ -9,7 +9,8 @@ const categoryMap = {
 };
 
 function normalizeProduct(item = {}) {
-  if (!item.title || !item.price || !item.product_url) {
+  const price = Number(item.price);
+  if (!item.title || !item.product_url || !Number.isFinite(price) || price <= 0) {
     return null;
   }
 
@@ -22,8 +23,8 @@ function normalizeProduct(item = {}) {
     id,
     title: compactText(item.title),
     description: compactText(item.description || ""),
-    price: Number(item.price),
-    rating: item.rating ? Number(item.rating) : null,
+    price,
+    rating: Number.isFinite(Number(item.rating)) ? Number(item.rating) : null,
     image: item.image || null,
     platform,
     category: categoryMap[lowerPlatform] || "General",

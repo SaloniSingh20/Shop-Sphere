@@ -40,7 +40,7 @@ const platformLogos: Record<string, string> = {
 };
 
 function formatInr(value: number): string {
-  return `${Math.round(value).toLocaleString()} inr`;
+  return `₹${Math.round(value).toLocaleString()}`;
 }
 
 export function ProductCard({
@@ -80,9 +80,9 @@ export function ProductCard({
           onOpenProduct?.();
         }}
       >
-        <div className="overflow-hidden rounded-xl bg-card border border-border transition-all duration-300 hover:shadow-lg hover:border-accent/50 cursor-pointer h-full flex flex-col">
+        <div className="overflow-hidden rounded-2xl bg-card border border-border/80 transition-all duration-300 hover:shadow-xl hover:border-accent/50 cursor-pointer h-full flex flex-col">
           {/* Image Container */}
-          <div className="relative h-48 w-full overflow-hidden bg-muted">
+          <div className="relative h-52 w-full overflow-hidden bg-muted/70">
             <Image
               src={image}
               alt={title}
@@ -121,13 +121,13 @@ export function ProductCard({
           </div>
 
           {/* Content */}
-          <div className="flex-1 p-4 flex flex-col">
-            <h3 className="font-semibold text-sm text-foreground line-clamp-2 mb-2 group-hover:text-accent transition-colors">
+          <div className="flex-1 p-5 flex flex-col">
+            <h3 className="font-semibold text-base leading-snug text-foreground line-clamp-2 mb-2 group-hover:text-accent transition-colors">
               {title}
             </h3>
 
             {/* Rating */}
-            <div className="flex items-center gap-2 mb-3">
+            <div className="flex items-center gap-2 mb-4">
               <div className="flex items-center gap-1">
                 <span className="text-sm font-medium text-foreground">⭐ {rating.toFixed(1)}</span>
                 <span className="text-xs text-muted-foreground">({reviewCount})</span>
@@ -135,13 +135,13 @@ export function ProductCard({
             </div>
 
             {/* Price */}
-            <div className="mb-4">
+            <div className="mb-5">
               <div className="flex items-baseline gap-2">
-                <span className="text-lg font-bold text-foreground">
+                <span className="text-xl font-bold text-foreground tracking-tight">
                   {formatInr(price)}
                 </span>
                 {originalPrice && (
-                  <span className="text-sm text-muted-foreground line-through">
+                  <span className="text-sm text-muted-foreground/90 line-through">
                     {formatInr(originalPrice)}
                   </span>
                 )}

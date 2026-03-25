@@ -1,13 +1,81 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Heart, ShoppingBag, Menu, X } from 'lucide-react';
+import { Heart, ShoppingBag, Menu, X, User, LogOut } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { ThemeToggle } from '@/components/shop/theme-toggle';
+import { clearAuthToken, getAuthToken, getMe } from '@/lib/api';
+
+type NavbarUser = {
+  name: string;
+  email: string;
+};
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [user, setUser] = useState<NavbarUser | null>(null);
+
+  useEffect(() => {
+    setIsMounted(true);
+
+    let cancelled = false;
+
+    const loadAuthState = async () => {
+      const token = getAuthToken();
+
+      if (!token) {
+        if (!cancelled) {
+          setUser(null);
+          setIsCheckingAuth(false);
+        }
+        return;
+      }
+
+      try {
+        const response = await getMe(token);
+        if (!cancelled) {
+          setUser(response.user);
+        }
+      } catch (_error) {
+        clearAuthToken();
+        if (!cancelled) {
+          setUser(null);
+        }
+      } finally {
+        if (!cancelled) {
+          setIsCheckingAuth(false);
+        }
+      }
+    };
+
+    loadAuthState();
+
+    const onAuthChange = () => {
+      setIsCheckingAuth(true);
+      loadAuthState();
+    };
+
+    window.addEventListener('auth-changed', onAuthChange);
+    window.addEventListener('focus', onAuthChange);
+
+    return () => {
+      cancelled = true;
+      window.removeEventListener('auth-changed', onAuthChange);
+      window.removeEventListener('focus', onAuthChange);
+    };
+  }, []);
+
+  const initial = user?.name?.[0]?.toUpperCase() || 'U';
+
+  const handleLogout = () => {
+    clearAuthToken();
+    setUser(null);
+    window.location.href = '/login';
+  };
 
   return (
     <motion.nav
@@ -54,6 +122,8 @@ export function Navbar() {
 
           {/* Right Actions */}
           <div className="flex items-center gap-2 sm:gap-4">
+            <ThemeToggle />
+
             <Link href="/wishlist">
               <Button
                 variant="ghost"
@@ -74,21 +144,49 @@ export function Navbar() {
               </Button>
             </Link>
 
-            <div className="hidden sm:flex gap-2">
-              <Link href="/login">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="border-border hover:border-accent hover:text-accent"
-                >
-                  Login
-                </Button>
-              </Link>
-              <Link href="/signup">
-                <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground">
-                  Sign up
-                </Button>
-              </Link>
+            <div className="hidden sm:flex gap-2 items-center">
+              {isMounted && !isCheckingAuth && user ? (
+                <>
+                  <Link href="/dashboard">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="border-border hover:border-accent hover:text-accent"
+                    >
+                      <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-accent/20 text-accent text-xs font-bold mr-2">
+                        {initial}
+                      </span>
+                      {user.name}
+                    </Button>
+                  </Link>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-muted-foreground hover:text-destructive"
+                    onClick={handleLogout}
+                  >
+                    <LogOut className="w-4 h-4 mr-1" />
+                    Logout
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Link href="/login">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="border-border hover:border-accent hover:text-accent"
+                    >
+                      Login
+                    </Button>
+                  </Link>
+                  <Link href="/signup">
+                    <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                      Sign up
+                    </Button>
+                  </Link>
+                </>
+              )}
             </div>
 
             {/* Mobile Menu Button */}
@@ -142,14 +240,34 @@ export function Navbar() {
               </Button>
             </Link>
             <div className="pt-3 border-t border-border space-y-2 flex flex-col">
-              <Link href="/login" className="block">
-                <Button variant="outline" className="w-full">
-                  Login
-                </Button>
-              </Link>
-              <Link href="/signup" className="block">
-                <Button className="w-full bg-primary hover:bg-primary/90">Sign up</Button>
-              </Link>
+              <div className="flex justify-start px-2">
+                <ThemeToggle />
+              </div>
+              {isMounted && !isCheckingAuth && user ? (
+                <>
+                  <Link href="/dashboard" className="block">
+                    <Button variant="outline" className="w-full justify-start">
+                      <User className="w-4 h-4 mr-2" />
+                      {user.name}
+                    </Button>
+                  </Link>
+                  <Button variant="ghost" className="w-full justify-start" onClick={handleLogout}>
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Logout
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Link href="/login" className="block">
+                    <Button variant="outline" className="w-full">
+                      Login
+                    </Button>
+                  </Link>
+                  <Link href="/signup" className="block">
+                    <Button className="w-full bg-primary hover:bg-primary/90">Sign up</Button>
+                  </Link>
+                </>
+              )}
             </div>
           </motion.div>
         )}

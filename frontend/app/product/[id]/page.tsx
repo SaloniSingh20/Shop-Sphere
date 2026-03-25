@@ -19,7 +19,7 @@ import { ProductCard } from '@/components/shop/product-card';
 import { LiveProductCard, mapApiProducts } from '@/lib/live-products';
 
 function formatInr(value: number): string {
-  return `${Math.round(value).toLocaleString()} inr`;
+  return `₹${Math.round(value).toLocaleString()}`;
 }
 
 export default function ProductDetailPage() {
@@ -313,7 +313,7 @@ export default function ProductDetailPage() {
             <div className="bg-card border border-border rounded-lg p-6">
               <h3 className="font-semibold text-foreground mb-4">Key Features</h3>
               <ul className="space-y-2">
-                <li className="text-sm text-muted-foreground">✓ Free delivery on orders above 500 inr</li>
+                <li className="text-sm text-muted-foreground">✓ Free delivery on orders above ₹500</li>
                 <li className="text-sm text-muted-foreground">✓ 7-day return policy</li>
                 <li className="text-sm text-muted-foreground">✓ Secure payment options</li>
                 <li className="text-sm text-muted-foreground">✓ Authentic product guarantee</li>

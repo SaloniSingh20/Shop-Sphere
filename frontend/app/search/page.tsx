@@ -62,8 +62,23 @@ function SearchPageContent() {
 
     async function runSearch() {
       if (!debouncedQuery) {
-        setProducts([]);
+        setIsLoading(true);
         setError('');
+
+        try {
+          const response = await fetchCatalogProducts({ limit: 80 });
+          if (cancelled) return;
+          setProducts(mapApiProducts(response.results));
+        } catch (err) {
+          if (cancelled) return;
+          setProducts([]);
+          setError(err instanceof Error ? err.message : 'Failed to fetch products');
+        } finally {
+          if (!cancelled) {
+            setIsLoading(false);
+          }
+        }
+
         return;
       }
 

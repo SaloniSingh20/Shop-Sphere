@@ -24,12 +24,14 @@ export function SearchBar({
 
   const handleSearch = useCallback(
     (searchQuery: string) => {
-      if (searchQuery.trim()) {
-        if (onSearch) {
-          onSearch(searchQuery);
-        } else {
-          router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
-        }
+      const trimmedQuery = searchQuery.trim();
+      if (onSearch) {
+        onSearch(trimmedQuery);
+        return;
+      }
+
+      if (trimmedQuery) {
+        router.push(`/search?q=${encodeURIComponent(trimmedQuery)}`);
       }
     },
     [router, onSearch]
@@ -42,6 +44,9 @@ export function SearchBar({
 
   const handleClear = () => {
     setQuery('');
+    if (onSearch) {
+      onSearch('');
+    }
   };
 
   return (

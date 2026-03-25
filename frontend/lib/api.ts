@@ -99,6 +99,7 @@ export function setAuthToken(token: string): void {
   }
 
   localStorage.setItem(TOKEN_KEY, token);
+  window.dispatchEvent(new Event('auth-changed'));
 }
 
 export function clearAuthToken(): void {
@@ -107,6 +108,16 @@ export function clearAuthToken(): void {
   }
 
   localStorage.removeItem(TOKEN_KEY);
+  window.dispatchEvent(new Event('auth-changed'));
+}
+
+export async function socialLogin(provider: 'google' | 'apple', email?: string, name?: string): Promise<AuthResponse> {
+  const response = await fetch(`${API_BASE_URL}/auth/social`, {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify({ provider, email, name }),
+  });
+  return parseJson<AuthResponse>(response);
 }
 
 export function normalizePlatform(platform: string): 'amazon' | 'flipkart' | 'nykaa' | 'myntra' {

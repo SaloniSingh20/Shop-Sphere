@@ -130,8 +130,8 @@ export function FilterSidebar({ onFilterChange, maxPrice = 100000 }: FilterSideb
               className="w-full"
             />
             <div className="flex items-center justify-between text-sm text-muted-foreground">
-              <span>{Math.round(priceRange[0]).toLocaleString()} inr</span>
-              <span>{Math.round(priceRange[1]).toLocaleString()} inr</span>
+              <span>₹{Math.round(priceRange[0]).toLocaleString()}</span>
+              <span>₹{Math.round(priceRange[1]).toLocaleString()}</span>
             </div>
           </motion.div>
         )}

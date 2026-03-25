@@ -73,6 +73,12 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    authProvider: {
+      type: String,
+      default: "password",
+      lowercase: true,
+      trim: true,
+    },
     wishlist: {
       type: [wishlistSchema],
       default: [],

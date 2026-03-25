@@ -22,6 +22,11 @@ const CATEGORY_REQUIRED_PLATFORMS = {
   fashion: ["Myntra", "Amazon", "Flipkart"],
   beauty: ["Nykaa", "Amazon", "Flipkart"],
 };
+const CORE_PLATFORMS = ["Amazon", "Flipkart", "Nykaa"];
+
+function isValidProductPrice(price) {
+  return Number.isFinite(Number(price)) && Number(price) > 0;
+}
 
 const FALLBACK_CATEGORY_PRODUCTS = {
   electronics: [
@@ -154,6 +159,74 @@ function buildFallbackCategoryProducts(category) {
     tags: [category, String(item.platform || "").toLowerCase()],
     lastSeenAt: new Date(),
   }));
+}
+
+function buildQueryFallbackProduct(platform, query, category) {
+  const keyword = String(query || category || "deals").trim() || "deals";
+  const isBeauty = category === "beauty" || platform === "Nykaa";
+
+  const urls = {
+    Amazon: `https://www.amazon.in/s?k=${encodeURIComponent(keyword)}`,
+    Flipkart: `https://www.flipkart.com/search?q=${encodeURIComponent(keyword)}`,
+    Nykaa: `https://www.nykaa.com/search/result/?q=${encodeURIComponent(keyword)}&root=search`,
+  };
+
+  return {
+    title: `${keyword} on ${platform}`,
+    description: `Trending ${keyword} picks from ${platform}`,
+    category: category || (isBeauty ? "beauty" : "electronics"),
+    sourceKeyword: keyword,
+    price: platform === "Nykaa" ? 499 : 999,
+    rating: 4.1,
+    image: null,
+    platform,
+    product_url: urls[platform],
+    tags: [String(category || "general"), platform.toLowerCase(), keyword.toLowerCase()],
+    lastSeenAt: new Date(),
+  };
+}
+
+function ensureCorePlatformsInCatalog(products, category, query) {
+  const current = (Array.isArray(products) ? products : []).filter(
+    (item) => item && item.title && item.product_url && isValidProductPrice(item.price)
+  );
+  const targetPlatforms = category && CATEGORY_REQUIRED_PLATFORMS[category]
+    ? CATEGORY_REQUIRED_PLATFORMS[category]
+    : CORE_PLATFORMS;
+
+  const present = new Set(current.map((item) => String(item.platform || "")));
+  if (targetPlatforms.every((platform) => present.has(platform))) {
+    return current;
+  }
+
+  const fallbackPool = Object.keys(FALLBACK_CATEGORY_PRODUCTS)
+    .flatMap((key) => buildFallbackCategoryProducts(key))
+    .filter((item) => targetPlatforms.includes(item.platform));
+
+  const existingUrls = new Set(current.map((item) => item.product_url));
+  for (const platform of targetPlatforms) {
+    if (present.has(platform)) continue;
+
+    const queryFallback = buildQueryFallbackProduct(platform, query, category);
+    if (queryFallback && !existingUrls.has(queryFallback.product_url)) {
+      current.push(queryFallback);
+      present.add(platform);
+      existingUrls.add(queryFallback.product_url);
+      continue;
+    }
+
+    const pick = fallbackPool.find(
+      (item) => item.platform === platform && !existingUrls.has(item.product_url)
+    );
+
+    if (pick) {
+      current.push(pick);
+      present.add(platform);
+      existingUrls.add(pick.product_url);
+    }
+  }
+
+  return current;
 }
 
 async function searchAllPlatforms(query) {
@@ -326,7 +399,9 @@ async function getCatalogProducts(req, res, next) {
       }
     }
 
-    const filter = {};
+    const filter = {
+      price: { $gt: 0 },
+    };
     if (category) filter.category = category;
 
     if (query) {
@@ -364,6 +439,10 @@ async function getCatalogProducts(req, res, next) {
         }
       }
     }
+
+    products = ensureCorePlatformsInCatalog(products, category || null, query || null)
+      .filter((item) => isValidProductPrice(item.price))
+      .slice(0, limit);
 
     return res.json({ category: category || null, query: query || null, results: products });
   } catch (error) {

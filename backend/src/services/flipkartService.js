@@ -1,6 +1,7 @@
 const { normalizeProduct } = require("../utils/normalizers");
 const { parsePrice, parseRating, normalizeUrl, compactText } = require("../utils/parsers");
 const { fetchHtml, rateLimited, randomDelay, detectChromeExecutablePath } = require("./serviceUtils");
+const { searchDatasetByPlatform } = require("../data/platformDatasets");
 
 const BASE_URL = "https://www.flipkart.com";
 
@@ -37,6 +38,7 @@ function pickAttr($card, selectors, attr) {
 async function searchFlipkart(query) {
   return rateLimited("flipkart", async () => {
     const url = `${BASE_URL}/search?q=${encodeURIComponent(query)}`;
+    const datasetFallback = () => searchDatasetByPlatform("Flipkart", query, 12);
 
     const scrapeWithCheerio = async () => {
       const $ = await fetchHtml(url);
@@ -158,9 +160,11 @@ async function searchFlipkart(query) {
     }
 
     try {
-      return await scrapeWithPuppeteer();
+      const browserResults = await scrapeWithPuppeteer();
+      if (browserResults.length) return browserResults;
+      return datasetFallback();
     } catch (_error) {
-      return [];
+      return datasetFallback();
     }
   });
 }

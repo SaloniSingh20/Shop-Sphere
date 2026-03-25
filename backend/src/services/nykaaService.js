@@ -1,6 +1,7 @@
 const { normalizeProduct } = require("../utils/normalizers");
 const { parsePrice, parseRating, normalizeUrl, compactText } = require("../utils/parsers");
 const { fetchHtml, rateLimited, randomDelay, detectChromeExecutablePath } = require("./serviceUtils");
+const { searchDatasetByPlatform } = require("../data/platformDatasets");
 
 const BASE_URL = "https://www.nykaa.com";
 
@@ -126,15 +127,21 @@ async function searchNykaaWithCheerio(query) {
 
 async function searchNykaa(query) {
   return rateLimited("nykaa", async () => {
+    const datasetFallback = () => searchDatasetByPlatform("Nykaa", query, 12);
+
     try {
       const dynamicResults = await searchNykaaWithPuppeteer(query);
       if (dynamicResults.length) return dynamicResults;
-      return await searchNykaaWithCheerio(query);
+      const cheerioResults = await searchNykaaWithCheerio(query);
+      if (cheerioResults.length) return cheerioResults;
+      return datasetFallback();
     } catch (_error) {
       try {
-        return await searchNykaaWithCheerio(query);
+        const cheerioResults = await searchNykaaWithCheerio(query);
+        if (cheerioResults.length) return cheerioResults;
+        return datasetFallback();
       } catch (_nestedError) {
-        return [];
+        return datasetFallback();
       }
     }
   });

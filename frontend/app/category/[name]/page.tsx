@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { ProductCard } from '@/components/shop/product-card';
 import { FilterSidebar, FilterState } from '@/components/shop/filter-sidebar';
+import { SearchBar } from '@/components/shop/search-bar';
 import {
   addRecentlyViewed,
   addWishlistItem,
@@ -14,6 +15,7 @@ import {
   getWishlist,
 } from '@/lib/api';
 import { useEffect, useMemo, useState } from 'react';
+import { useDebounce } from '@/hooks/use-debounce';
 import { Button } from '@/components/ui/button';
 import { Empty } from '@/components/ui/empty';
 import { LiveProductCard, mapApiProducts } from '@/lib/live-products';
@@ -54,6 +56,8 @@ export default function CategoryPage() {
   const categoryInfo = CATEGORY_INFO[categoryName];
   const categoryMaxPrice = CATEGORY_MAX_PRICE[categoryName] || 100000;
   const [products, setProducts] = useState<LiveProductCard[]>([]);
+  const [categoryQuery, setCategoryQuery] = useState('');
+  const debouncedCategoryQuery = useDebounce(categoryQuery, 300);
   const [wishlistedUrls, setWishlistedUrls] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -100,7 +104,11 @@ export default function CategoryPage() {
       setIsLoading(true);
       setError('');
       try {
-        const response = await fetchCatalogProducts({ category: categoryName, limit: 80 });
+        const response = await fetchCatalogProducts({
+          category: categoryName,
+          q: debouncedCategoryQuery || undefined,
+          limit: 80,
+        });
         if (cancelled) return;
         setProducts(mapApiProducts(response.results));
       } catch (err) {
@@ -119,7 +127,7 @@ export default function CategoryPage() {
     return () => {
       cancelled = true;
     };
-  }, [categoryName, categoryInfo]);
+  }, [categoryName, categoryInfo, debouncedCategoryQuery]);
 
   async function handleAddWishlist(product: LiveProductCard) {
     const token = getAuthToken();
@@ -227,6 +235,12 @@ export default function CategoryPage() {
               <h1 className="text-4xl lg:text-5xl font-bold text-foreground">{categoryInfo.title}</h1>
             </div>
             <p className="text-lg text-muted-foreground">{categoryInfo.description}</p>
+            <div className="mt-6 max-w-3xl">
+              <SearchBar
+                placeholder={`Search in ${categoryInfo.title}...`}
+                onSearch={(value) => setCategoryQuery(value.trim())}
+              />
+            </div>
           </motion.div>
         </div>
       </div>

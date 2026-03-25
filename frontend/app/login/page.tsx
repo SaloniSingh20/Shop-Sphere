@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Eye, EyeOff } from 'lucide-react';
-import { login, setAuthToken } from '@/lib/api';
+import { login, setAuthToken, socialLogin } from '@/lib/api';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -25,9 +25,28 @@ export default function LoginPage() {
     try {
       const response = await login(email, password);
       setAuthToken(response.token);
-      router.push('/wishlist');
+      router.push('/dashboard');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unable to sign in');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSocialSignIn = async (provider: 'google' | 'apple') => {
+    const defaultEmail = provider === 'google' ? 'you@gmail.com' : 'you@icloud.com';
+    const email = window.prompt(`Enter your ${provider} email`, defaultEmail)?.trim();
+    if (!email) return;
+
+    setError('');
+    setIsLoading(true);
+
+    try {
+      const response = await socialLogin(provider, email, email.split('@')[0]);
+      setAuthToken(response.token);
+      router.push('/dashboard');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : `Unable to sign in with ${provider}`);
     } finally {
       setIsLoading(false);
     }
@@ -140,6 +159,8 @@ export default function LoginPage() {
               type="button"
               variant="outline"
               className="w-full border-border hover:border-accent hover:text-accent"
+              onClick={() => handleSocialSignIn('google')}
+              disabled={isLoading}
             >
               <span className="text-lg mr-2">🔵</span>
               Google
@@ -148,6 +169,8 @@ export default function LoginPage() {
               type="button"
               variant="outline"
               className="w-full border-border hover:border-accent hover:text-accent"
+              onClick={() => handleSocialSignIn('apple')}
+              disabled={isLoading}
             >
               <span className="text-lg mr-2">🍎</span>
               Apple

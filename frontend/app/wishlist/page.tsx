@@ -28,7 +28,7 @@ interface WishlistProduct {
 }
 
 function formatInr(value: number): string {
-  return `${Math.round(value).toLocaleString()} inr`;
+  return `₹${Math.round(value).toLocaleString()}`;
 }
 
 export default function WishlistPage() {
