@@ -10,7 +10,7 @@ const categoryMap = {
 
 function normalizeProduct(item = {}) {
   const price = Number(item.price);
-  if (!item.title || !item.product_url || !Number.isFinite(price) || price <= 0) {
+  if (!item.title || !item.product_url || !Number.isFinite(price) || price < 10) {
     return null;
   }
 

@@ -145,7 +145,7 @@ async function searchWithScraping(query) {
 
 async function searchAmazon(query) {
   return rateLimited("amazon", async () => {
-    const datasetFallback = () => searchDatasetByPlatform("Amazon", query, 12);
+    const datasetFallback = () => searchDatasetByPlatform("Amazon", query, 24);
 
     try {
       const apiResults = await searchWithPaapi(query);

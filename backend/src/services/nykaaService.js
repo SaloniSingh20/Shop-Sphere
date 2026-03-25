@@ -127,7 +127,7 @@ async function searchNykaaWithCheerio(query) {
 
 async function searchNykaa(query) {
   return rateLimited("nykaa", async () => {
-    const datasetFallback = () => searchDatasetByPlatform("Nykaa", query, 12);
+    const datasetFallback = () => searchDatasetByPlatform("Nykaa", query, 24);
 
     try {
       const dynamicResults = await searchNykaaWithPuppeteer(query);

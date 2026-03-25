@@ -190,11 +190,11 @@ function SearchPageContent() {
   }, [products, filters]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[linear-gradient(180deg,#3a3326_0%,#2e2a22_42%,#f8f6f2_42%,#f8f6f2_100%)]">
       {/* Search Bar Section */}
-      <div className="bg-secondary/20 border-b border-border py-8">
+      <div className="border-b border-white/15 py-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-3xl font-bold text-foreground mb-6">
+          <h1 className="text-xl font-semibold text-white/95 mb-4 tracking-tight">
             {query ? `Search Results for "${query}"` : 'All Products'}
           </h1>
           <SearchBar />
@@ -202,7 +202,7 @@ function SearchPageContent() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
           {/* Sidebar - Hidden on mobile */}
           <motion.aside
@@ -210,8 +210,8 @@ function SearchPageContent() {
             animate={{ opacity: 1, x: 0 }}
             className="lg:col-span-1 hidden lg:block"
           >
-            <div className="sticky top-24 bg-card rounded-xl border border-border p-6">
-              <h2 className="font-bold text-foreground mb-6">Filters</h2>
+            <div className="sticky top-24 bg-white/95 rounded-2xl border border-black/5 p-5 shadow-sm">
+              <h2 className="text-sm font-semibold text-zinc-900 mb-5 tracking-tight">Filters</h2>
               <FilterSidebar onFilterChange={setFilters} />
             </div>
           </motion.aside>
@@ -225,20 +225,20 @@ function SearchPageContent() {
           >
             {/* Results Count */}
             <div className="flex items-center justify-between mb-8">
-              <p className="text-muted-foreground">
+              <p className="text-sm text-zinc-700">
                 {filteredAndSortedProducts.length}{' '}
                 {filteredAndSortedProducts.length === 1 ? 'product' : 'products'} found
               </p>
             </div>
 
             {error && (
-              <div className="mb-6 rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
+              <div className="mb-6 rounded-md border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive">
                 {error}
               </div>
             )}
 
             {isLoading && (
-              <div className="mb-6 rounded-md border border-border bg-card p-3 text-sm text-muted-foreground">
+              <div className="mb-6 rounded-md border border-black/10 bg-white p-3 text-xs text-zinc-600">
                 Fetching live marketplace results...
               </div>
             )}
@@ -260,6 +260,7 @@ function SearchPageContent() {
                     <ProductCard
                       id={product.id}
                       title={product.title}
+                      description={product.description}
                       price={product.price}
                       originalPrice={product.originalPrice}
                       rating={product.rating}

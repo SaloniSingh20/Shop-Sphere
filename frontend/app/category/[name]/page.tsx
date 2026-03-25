@@ -50,11 +50,35 @@ const CATEGORY_MAX_PRICE: Record<string, number> = {
   home: 100000,
 };
 
+const CATEGORY_THEME: Record<string, { shell: string; headerText: string; panel: string }> = {
+  fashion: {
+    shell: 'bg-[linear-gradient(180deg,#40382d_0%,#2f2a22_44%,#f8f6f2_44%,#f8f6f2_100%)]',
+    headerText: 'text-white/95',
+    panel: 'bg-white/96 border-black/5',
+  },
+  beauty: {
+    shell: 'bg-[linear-gradient(180deg,#6e1f2f_0%,#4a1622_44%,#faf5f7_44%,#faf5f7_100%)]',
+    headerText: 'text-white/95',
+    panel: 'bg-white/95 border-[#e7cfd8]',
+  },
+  electronics: {
+    shell: 'bg-[linear-gradient(180deg,#18263d_0%,#101a2d_44%,#f4f7fb_44%,#f4f7fb_100%)]',
+    headerText: 'text-white/95',
+    panel: 'bg-white/95 border-[#d8e2f0]',
+  },
+  home: {
+    shell: 'bg-[linear-gradient(180deg,#33422d_0%,#273222_44%,#f6f8f2_44%,#f6f8f2_100%)]',
+    headerText: 'text-white/95',
+    panel: 'bg-white/95 border-[#dce7cf]',
+  },
+};
+
 export default function CategoryPage() {
   const params = useParams<{ name: string }>();
   const categoryName = String(params?.name || '').toLowerCase();
   const categoryInfo = CATEGORY_INFO[categoryName];
   const categoryMaxPrice = CATEGORY_MAX_PRICE[categoryName] || 100000;
+  const categoryTheme = CATEGORY_THEME[categoryName] || CATEGORY_THEME.home;
   const [products, setProducts] = useState<LiveProductCard[]>([]);
   const [categoryQuery, setCategoryQuery] = useState('');
   const debouncedCategoryQuery = useDebounce(categoryQuery, 300);
@@ -216,12 +240,12 @@ export default function CategoryPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className={`min-h-screen ${categoryTheme.shell}`}>
       {/* Category Header */}
-      <div className="bg-secondary/20 border-b border-border py-12">
+      <div className="border-b border-white/15 py-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <Link href="/" className="inline-block mb-6">
-            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+            <Button variant="ghost" size="sm" className="text-white/75 hover:text-white hover:bg-white/10">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back
             </Button>
@@ -232,9 +256,9 @@ export default function CategoryPage() {
           >
             <div className="flex items-center gap-4 mb-4">
               <span className="text-5xl">{categoryInfo.icon}</span>
-              <h1 className="text-4xl lg:text-5xl font-bold text-foreground">{categoryInfo.title}</h1>
+              <h1 className={`text-3xl lg:text-4xl font-semibold tracking-tight ${categoryTheme.headerText}`}>{categoryInfo.title}</h1>
             </div>
-            <p className="text-lg text-muted-foreground">{categoryInfo.description}</p>
+            <p className="text-sm text-white/75">{categoryInfo.description}</p>
             <div className="mt-6 max-w-3xl">
               <SearchBar
                 placeholder={`Search in ${categoryInfo.title}...`}
@@ -246,7 +270,7 @@ export default function CategoryPage() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
           {/* Sidebar */}
           <motion.aside
@@ -254,8 +278,8 @@ export default function CategoryPage() {
             animate={{ opacity: 1, x: 0 }}
             className="lg:col-span-1 hidden lg:block"
           >
-            <div className="sticky top-24 bg-card rounded-xl border border-border p-6">
-              <h2 className="font-bold text-foreground mb-6">Filters</h2>
+            <div className={`sticky top-24 rounded-2xl border p-5 shadow-sm ${categoryTheme.panel}`}>
+              <h2 className="text-sm font-semibold text-zinc-900 mb-5 tracking-tight">Filters</h2>
               <FilterSidebar onFilterChange={setFilters} maxPrice={categoryMaxPrice} />
             </div>
           </motion.aside>
@@ -274,14 +298,14 @@ export default function CategoryPage() {
             )}
 
             {isLoading && (
-              <div className="mb-6 rounded-md border border-border bg-card p-3 text-sm text-muted-foreground">
+              <div className="mb-6 rounded-md border border-black/10 bg-white p-3 text-xs text-zinc-600">
                 Loading category products...
               </div>
             )}
 
             {/* Results Count */}
             <div className="flex items-center justify-between mb-8">
-              <p className="text-muted-foreground">
+              <p className="text-sm text-zinc-700">
                 {filteredAndSortedProducts.length}{' '}
                 {filteredAndSortedProducts.length === 1 ? 'product' : 'products'} available
               </p>
@@ -304,6 +328,7 @@ export default function CategoryPage() {
                     <ProductCard
                       id={product.id}
                       title={product.title}
+                      description={product.description}
                       price={product.price}
                       originalPrice={product.originalPrice}
                       rating={product.rating}

@@ -15,7 +15,7 @@ const CACHE_WINDOW_MS = 10 * 60 * 1000;
 const CORE_PLATFORMS = ["Amazon", "Flipkart", "Nykaa"];
 
 function isValidProductPrice(price) {
-  return Number.isFinite(Number(price)) && Number(price) > 0;
+  return Number.isFinite(Number(price)) && Number(price) >= 10;
 }
 
 function sanitizeProducts(products) {

@@ -103,7 +103,7 @@ export function FilterSidebar({ onFilterChange, maxPrice = 100000 }: FilterSideb
       >
         <button
           onClick={() => toggleSection('price')}
-          className="w-full flex items-center justify-between mb-3 text-foreground font-semibold hover:text-accent transition-colors"
+          className="w-full flex items-center justify-between mb-3 text-foreground text-sm font-semibold hover:text-accent transition-colors"
         >
           <span>Price Range</span>
           <motion.div
@@ -129,7 +129,7 @@ export function FilterSidebar({ onFilterChange, maxPrice = 100000 }: FilterSideb
               step={1000}
               className="w-full"
             />
-            <div className="flex items-center justify-between text-sm text-muted-foreground">
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
               <span>₹{Math.round(priceRange[0]).toLocaleString()}</span>
               <span>₹{Math.round(priceRange[1]).toLocaleString()}</span>
             </div>
@@ -145,7 +145,7 @@ export function FilterSidebar({ onFilterChange, maxPrice = 100000 }: FilterSideb
       >
         <button
           onClick={() => toggleSection('platform')}
-          className="w-full flex items-center justify-between mb-3 text-foreground font-semibold hover:text-accent transition-colors"
+          className="w-full flex items-center justify-between mb-3 text-foreground text-sm font-semibold hover:text-accent transition-colors"
         >
           <span>Platforms</span>
           <motion.div
@@ -170,7 +170,7 @@ export function FilterSidebar({ onFilterChange, maxPrice = 100000 }: FilterSideb
                   onCheckedChange={() => handlePlatformToggle(platform.id)}
                   className="w-5 h-5"
                 />
-                <span className="text-sm text-muted-foreground group-hover:text-foreground transition-colors">
+                <span className="text-xs text-muted-foreground group-hover:text-foreground transition-colors">
                   {platform.label}
                 </span>
               </label>
@@ -187,7 +187,7 @@ export function FilterSidebar({ onFilterChange, maxPrice = 100000 }: FilterSideb
       >
         <button
           onClick={() => toggleSection('rating')}
-          className="w-full flex items-center justify-between mb-3 text-foreground font-semibold hover:text-accent transition-colors"
+          className="w-full flex items-center justify-between mb-3 text-foreground text-sm font-semibold hover:text-accent transition-colors"
         >
           <span>Min. Rating</span>
           <motion.div
@@ -230,7 +230,7 @@ export function FilterSidebar({ onFilterChange, maxPrice = 100000 }: FilterSideb
       >
         <button
           onClick={() => toggleSection('sort')}
-          className="w-full flex items-center justify-between mb-3 text-foreground font-semibold hover:text-accent transition-colors"
+          className="w-full flex items-center justify-between mb-3 text-foreground text-sm font-semibold hover:text-accent transition-colors"
         >
           <span>Sort By</span>
           <motion.div

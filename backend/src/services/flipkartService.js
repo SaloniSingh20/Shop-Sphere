@@ -38,7 +38,7 @@ function pickAttr($card, selectors, attr) {
 async function searchFlipkart(query) {
   return rateLimited("flipkart", async () => {
     const url = `${BASE_URL}/search?q=${encodeURIComponent(query)}`;
-    const datasetFallback = () => searchDatasetByPlatform("Flipkart", query, 12);
+    const datasetFallback = () => searchDatasetByPlatform("Flipkart", query, 24);
 
     const scrapeWithCheerio = async () => {
       const $ = await fetchHtml(url);

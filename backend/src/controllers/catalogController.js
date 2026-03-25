@@ -8,13 +8,13 @@ const env = require("../config/env");
 const { dedupeProducts } = require("../utils/normalizers");
 
 const CATEGORY_KEYWORDS = {
-  electronics: ["smartphone", "laptop", "earbuds", "smartwatch"],
-  fashion: ["men tshirt", "women dress", "sneakers", "handbag"],
-  beauty: ["face serum", "lipstick", "sunscreen", "moisturizer"],
-  home: ["kitchen organizer", "bedsheet", "storage box", "table lamp"],
+  electronics: ["smartphone", "laptop", "earbuds", "smartwatch", "tablet", "headphones", "power bank", "bluetooth speaker"],
+  fashion: ["men tshirt", "women dress", "sneakers", "handbag", "casual shirt", "jeans", "kurti", "jacket"],
+  beauty: ["face serum", "lipstick", "sunscreen", "moisturizer", "face wash", "kajal", "foundation", "shampoo"],
+  home: ["kitchen organizer", "bedsheet", "storage box", "table lamp", "cushion cover", "dinner set", "water bottle", "bath towel"],
 };
 
-const CATEGORY_MIN_ITEMS = 20;
+const CATEGORY_MIN_ITEMS = 40;
 const CATEGORY_STALE_MS = 6 * 60 * 60 * 1000;
 
 const CATEGORY_REQUIRED_PLATFORMS = {
@@ -25,7 +25,7 @@ const CATEGORY_REQUIRED_PLATFORMS = {
 const CORE_PLATFORMS = ["Amazon", "Flipkart", "Nykaa"];
 
 function isValidProductPrice(price) {
-  return Number.isFinite(Number(price)) && Number(price) > 0;
+  return Number.isFinite(Number(price)) && Number(price) >= 10;
 }
 
 const FALLBACK_CATEGORY_PRODUCTS = {
@@ -400,7 +400,7 @@ async function getCatalogProducts(req, res, next) {
     }
 
     const filter = {
-      price: { $gt: 0 },
+      price: { $gte: 10 },
     };
     if (category) filter.category = category;
 

@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 interface ProductCardProps {
   id: string;
   title: string;
+  description?: string;
   price: number;
   originalPrice?: number;
   rating: number;
@@ -46,6 +47,7 @@ function formatInr(value: number): string {
 export function ProductCard({
   id,
   title,
+  description,
   price,
   originalPrice,
   rating,
@@ -80,14 +82,14 @@ export function ProductCard({
           onOpenProduct?.();
         }}
       >
-        <div className="overflow-hidden rounded-2xl bg-card border border-border/80 transition-all duration-300 hover:shadow-xl hover:border-accent/50 cursor-pointer h-full flex flex-col">
+        <div className="overflow-hidden rounded-2xl bg-card border border-border/80 transition-all duration-300 hover:shadow-lg hover:border-accent/40 cursor-pointer h-full flex flex-col">
           {/* Image Container */}
-          <div className="relative h-52 w-full overflow-hidden bg-muted/70">
+          <div className="relative h-44 w-full overflow-hidden bg-muted/60">
             <Image
               src={image}
               alt={title}
               fill
-              className="object-cover transition-transform duration-300 group-hover:scale-105"
+              className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
             />
 
             {/* Badges */}
@@ -121,27 +123,31 @@ export function ProductCard({
           </div>
 
           {/* Content */}
-          <div className="flex-1 p-5 flex flex-col">
-            <h3 className="font-semibold text-base leading-snug text-foreground line-clamp-2 mb-2 group-hover:text-accent transition-colors">
+          <div className="flex-1 p-4 flex flex-col">
+            <h3 className="font-semibold text-sm leading-snug text-foreground line-clamp-2 mb-1.5 group-hover:text-accent transition-colors">
               {title}
             </h3>
 
+            <p className="text-xs text-muted-foreground line-clamp-2 mb-2.5">
+              {description || title}
+            </p>
+
             {/* Rating */}
-            <div className="flex items-center gap-2 mb-4">
+            <div className="flex items-center gap-2 mb-3">
               <div className="flex items-center gap-1">
-                <span className="text-sm font-medium text-foreground">⭐ {rating.toFixed(1)}</span>
-                <span className="text-xs text-muted-foreground">({reviewCount})</span>
+                <span className="text-xs font-medium text-foreground">⭐ {rating.toFixed(1)}</span>
+                <span className="text-[11px] text-muted-foreground">({reviewCount})</span>
               </div>
             </div>
 
             {/* Price */}
-            <div className="mb-5">
+            <div className="mb-3">
               <div className="flex items-baseline gap-2">
-                <span className="text-xl font-bold text-foreground tracking-tight">
+                <span className="text-base font-semibold text-foreground tracking-tight">
                   {formatInr(price)}
                 </span>
                 {originalPrice && (
-                  <span className="text-sm text-muted-foreground/90 line-through">
+                  <span className="text-xs text-muted-foreground/90 line-through">
                     {formatInr(originalPrice)}
                   </span>
                 )}
@@ -153,7 +159,7 @@ export function ProductCard({
               <Button
                 variant="outline"
                 size="sm"
-                className="flex-1"
+                className="flex-1 text-xs"
                 onClick={(e) => {
                   e.preventDefault();
                   router.push(detailHref);
@@ -164,7 +170,7 @@ export function ProductCard({
               <Button
                 variant="default"
                 size="sm"
-                className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
+                className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground text-xs"
                 onClick={(e) => {
                   e.preventDefault();
                   if (href) {

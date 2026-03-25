@@ -20,7 +20,7 @@ function parsePrice(value) {
       }
 
       const parsed = Number.parseFloat(cleaned);
-      if (!Number.isFinite(parsed) || parsed <= 0) return null;
+      if (!Number.isFinite(parsed) || parsed < 10) return null;
       return parsed;
     })
     .filter((num) => num !== null);

@@ -26,8 +26,9 @@ const PLATFORM_BASE: Record<string, string> = {
 function resolveImage(item: ApiProduct, index: number): string {
   const platform = normalizePlatform(item.platform);
   const image = String(item.image || '').trim();
+  const isUnsplash = image.includes('images.unsplash.com');
 
-  if (image.startsWith('http://') || image.startsWith('https://')) {
+  if ((image.startsWith('http://') || image.startsWith('https://')) && !isUnsplash) {
     return image;
   }
 
@@ -39,9 +40,8 @@ function resolveImage(item: ApiProduct, index: number): string {
     return `${PLATFORM_BASE[platform]}${image}`;
   }
 
-  // Use product-specific fallback query instead of a single static image.
-  const seed = encodeURIComponent(`${item.title || 'product'} ${item.platform || ''} ${index}`);
-  return `https://source.unsplash.com/600x600/?${seed}`;
+  const label = encodeURIComponent((item.platform || 'product').toUpperCase());
+  return `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='600'><rect width='100%25' height='100%25' fill='%23f4f4f5'/><text x='50%25' y='47%25' text-anchor='middle' fill='%236b7280' font-family='Arial, sans-serif' font-size='22'>${label}</text><text x='50%25' y='54%25' text-anchor='middle' fill='%239ca3af' font-family='Arial, sans-serif' font-size='16'>Image unavailable</text></svg>`;
 }
 
 export function mapApiProducts(results: ApiProduct[]): LiveProductCard[] {
